@@ -1,0 +1,43 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ template "chkk-cluster-agent.fullname" . }}-role
+  labels:
+{{ include "chkk-cluster-agent.labels" . | indent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: [namespaces]
+    verbs: [get, list, watch]
+  - apiGroups: [""]
+    resources: [pods, podtemplates, replicationcontrollers, services]
+    verbs: [get, list, watch]
+  - apiGroups: [""]
+    resources: [nodes]
+    verbs: [get, list, watch]
+  - apiGroups: [""]
+    resources: [configmaps]
+    verbs: [get, list, watch]
+  - apiGroups: [apps]
+    resources: [replicasets, statefulsets, daemonsets, deployments]
+    verbs: [get, list, watch]
+  - apiGroups: [batch]
+    resources: [jobs, cronjobs]
+    verbs: [get, list, watch, create]
+  - apiGroups: ["networking.k8s.io"]
+    resources: [networkpolicies, ingresses]
+    verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ template "chkk-cluster-agent.fullname" . }}-rolebinding
+  labels:
+{{ include "chkk-cluster-agent.labels" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ template "chkk-cluster-agent.fullname" . }}-role
+subjects:
+  - kind: ServiceAccount
+    name: {{ template "chkk-cluster-agent.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}

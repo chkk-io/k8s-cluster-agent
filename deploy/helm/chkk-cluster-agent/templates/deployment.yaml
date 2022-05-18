@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "chkk-cluster-agent.fullname" . }}-manager
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "chkk-cluster-agent.labels" . | indent 4 }}
+  annotations:
+{{ include "chkk-cluster-agent.annotations" . | indent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ template "chkk-cluster-agent.fullname" . }}-manager
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ template "chkk-cluster-agent.fullname" . }}-manager
+      annotations:
+{{ include "chkk-cluster-agent.annotations" . | indent 8 }}
+    spec:
+      securityContext:
+        runAsUser: 12000
+        runAsNonRoot: true
+      restartPolicy: Always
+      serviceAccountName: {{ template "chkk-cluster-agent.serviceAccountName" . }}
+      automountServiceAccountToken: true
+      containers:
+        - name: {{ template "chkk-cluster-agent.fullname" . }}-manager
+          image: "{{ .Values.manager.image.repository }}:{{ .Values.manager.image.tag }}"
+          imagePullPolicy: {{ .Values.manager.image.pullPolicy }}
+          env:
+            - name: CHKK_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "chkk-cluster-agent.secretName" . }}
+                  key: CHKK_ACCESS_TOKEN
+          resources:
+{{ toYaml .Values.manager.resources | indent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL

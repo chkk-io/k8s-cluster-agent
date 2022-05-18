@@ -1,0 +1,58 @@
+apiVersion: {{ include "chkk-cluster-agent.cronjob.apiVersion" . }}
+kind: CronJob
+metadata:
+  name: chkk-cluster-context-cronjob
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "chkk-cluster-agent.labels" . | indent 4 }}
+{{ include "chkk-cluster-agent.cronjobLabels" . | indent 4 }}
+spec:
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  # Minutes, Hours, Day of Month (1-31), Month (1-12), Day of Week (0-6)
+  schedule: {{ .Values.cronjob.schedule | quote }}
+  jobTemplate:
+    metadata:
+      labels:
+{{ include "chkk-cluster-agent.labels" . | indent 8 }}
+      annotations:
+{{ include "chkk-cluster-agent.annotations" . | indent 8 }}
+    spec:
+      template:
+        metadata:
+          labels:
+{{ include "chkk-cluster-agent.labels" . | indent 12 }}
+          annotations:
+{{ include "chkk-cluster-agent.annotations" . | indent 12 }}
+        spec:
+          securityContext:
+            runAsUser: 12000
+            runAsNonRoot: true
+          restartPolicy: Never
+          serviceAccountName: {{ template "chkk-cluster-agent.serviceAccountName" . }}
+          automountServiceAccountToken: true
+          containers:
+            - name: chkk-cronjob
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              env:
+                - name: CHKK_ACCESS_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "chkk-cluster-agent.secretName" . }}
+                      key: CHKK_ACCESS_TOKEN
+              resources:
+{{ toYaml .Values.resources | indent 16 }}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - name: {{ include "chkk-cluster-agent.fullname" . }}
+                  mountPath: /config
+                  readOnly: true
+          volumes:
+            - name: {{ include "chkk-cluster-agent.fullname" . }}
+              configMap:
+                name: {{ include "chkk-cluster-agent.fullname" . }}
