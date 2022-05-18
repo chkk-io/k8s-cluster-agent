@@ -1,0 +1,345 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: chkk-system
+  annotations:
+    chkk.io/name: Cluster Agent
+    chkk.io/version: v1.0.22
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/instance: chkk-cluster-context-cronjob
+    app.kubernetes.io/managed-by: kubectl
+    app.kubernetes.io/name: chkk-cluster-context-cronjob
+  annotations:
+    chkk.io/name: Cluster Agent
+    chkk.io/version: v1.0.22
+  name: chkk-cluster-context-cronjob
+  namespace: chkk-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/instance: chkk-cluster-context-cronjob
+    app.kubernetes.io/managed-by: kubectl
+    app.kubernetes.io/name: chkk-cluster-context-cronjob
+  annotations:
+    chkk.io/name: Cluster Agent
+    chkk.io/version: v1.0.22
+  name: chkk-cluster-context-cronjob
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - podtemplates
+      - replicationcontrollers
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - replicasets
+      - statefulsets
+      - daemonsets
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
+      - cronjobs
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - networkpolicies
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/instance: chkk-cluster-context-cronjob
+    app.kubernetes.io/managed-by: kubectl
+    app.kubernetes.io/name: chkk-cluster-context-cronjob
+  annotations:
+    chkk.io/name: Cluster Agent
+    chkk.io/version: v1.0.22
+  name: chkk-cluster-context-cronjob
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: chkk-cluster-context-cronjob
+subjects:
+  - kind: ServiceAccount
+    name: chkk-cluster-context-cronjob
+    namespace: chkk-system
+---
+apiVersion: v1
+data:
+  clusterguard.config: |-
+    DaemonSet: true
+    Deployment: true
+    Pod: true
+    PodTemplate: true
+    ReplicationController: true
+    StatefulSet: true
+    NetworkPolicy: true
+    CronJob: true
+    Namespace: true
+    Service: true
+    Job: true
+    Ingress: true
+    ConfigMap: true
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: chkk-cluster-context-cronjob
+    app.kubernetes.io/managed-by: kubectl
+    app.kubernetes.io/name: chkk-cluster-context-cronjob
+  annotations:
+    chkk.io/name: Cluster Agent
+    chkk.io/version: v1.0.22
+  name: chkk-cluster-context-cronjob
+  namespace: chkk-system
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    app.kubernetes.io/instance: chkk-cluster-context-cronjob
+    app.kubernetes.io/managed-by: kubectl
+    app.kubernetes.io/name: chkk-cluster-context-cronjob
+  annotations:
+    chkk.io/name: Cluster Agent
+    chkk.io/version: v1.0.22
+  name: chkk-cluster-context-cronjob
+  namespace: chkk-system
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  labels:
+    app.kubernetes.io/instance: chkk-cluster-context-cronjob
+    app.kubernetes.io/managed-by: kubectl
+    app.kubernetes.io/name: chkk-cluster-context-cronjob
+    chkk.io/name: chkk-cluster-agent
+  annotations:
+    chkk.io/name: Cluster Agent
+    chkk.io/version: v1.0.22
+  name: chkk-cluster-context-cronjob
+  namespace: chkk-system
+spec:
+  jobTemplate:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: chkk-cluster-context-cronjob
+        app.kubernetes.io/name: chkk-cluster-context-cronjob
+      annotations:
+        chkk.io/name: Cluster Agent
+        chkk.io/version: v1.0.22
+    spec:
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/instance: chkk-cluster-context-cronjob
+            app.kubernetes.io/name: chkk-cluster-context-cronjob
+          annotations:
+            chkk.io/name: Cluster Agent
+            chkk.io/version: v1.0.22
+        spec:
+          automountServiceAccountToken: true
+          containers:
+            - env:
+                - name: CHKK_ACCESS_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      key: CHKK_ACCESS_TOKEN
+                      name: chkk-access-token
+              image: public.ecr.aws/j8z4q9j4/chkk-kontext:v1.0.22
+              imagePullPolicy: Always
+              name: chkk-cluster-context-cronjob
+              resources:
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+                requests:
+                  cpu: 500m
+                  memory: 512Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              volumeMounts:
+                - mountPath: /config
+                  name: chkk-cluster-context-cronjob
+                  readOnly: true
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 12000
+          serviceAccountName: chkk-cluster-context-cronjob
+          volumes:
+            - configMap:
+                name: chkk-cluster-context-cronjob
+              name: chkk-cluster-context-cronjob
+  schedule: 0 */12 * * *
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    chkk.io/name: Cluster Agent
+    chkk.io/version: v1.0.22
+  labels:
+    app.kubernetes.io/instance: chkk-cluster-agent-manager
+    app.kubernetes.io/managed-by: kubectl
+    app.kubernetes.io/name: chkk-cluster-agent-manager
+  name: chkk-cluster-agent-manager
+  namespace: chkk-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: chkk-cluster-agent-manager
+  template:
+    metadata:
+      annotations:
+        chkk.io/name: Cluster Agent
+        chkk.io/version: v1.0.22
+      labels:
+        app.kubernetes.io/name: chkk-cluster-agent-manager
+    spec:
+      automountServiceAccountToken: true
+      containers:
+        - env:
+            - name: CHKK_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: CHKK_ACCESS_TOKEN
+                  name: chkk-access-token
+          image: public.ecr.aws/j8z4q9j4/chkk-cluster-agent-manager:v1.0.22
+          imagePullPolicy: Always
+          name: chkk-cluster-agent-manager
+          resources:
+            limits:
+              cpu: 50m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+      restartPolicy: Always
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 12000
+      serviceAccountName: chkk-cluster-context-cronjob
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app.kubernetes.io/instance: chkk-cluster-context-firstscan-job
+    app.kubernetes.io/managed-by: kubectl
+    app.kubernetes.io/name: chkk-cluster-context-firstscan-job
+  annotations:
+    chkk.io/name: Cluster Agent
+    chkk.io/version: v1.0.22
+  name: chkk-cluster-context-firstscan-job
+  namespace: chkk-system
+spec:
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: chkk-cluster-context-firstscan-job
+        app.kubernetes.io/name: chkk-cluster-context-firstscan-job
+      annotations:
+        chkk.io/name: Cluster Agent
+        chkk.io/version: v1.0.22
+    spec:
+      automountServiceAccountToken: true
+      containers:
+        - env:
+            - name: CHKK_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: CHKK_ACCESS_TOKEN
+                  name: chkk-access-token
+          image: public.ecr.aws/j8z4q9j4/chkk-kontext:v1.0.22
+          imagePullPolicy: Always
+          name: chkk-cluster-context-firstscan-job
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - mountPath: /config
+              name: chkk-cluster-context-firstscan-job
+              readOnly: true
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 12000
+      serviceAccountName: chkk-cluster-context-cronjob
+      volumes:
+        - configMap:
+            name: chkk-cluster-context-cronjob
+          name: chkk-cluster-context-firstscan-job
+  ttlSecondsAfterFinished: 10

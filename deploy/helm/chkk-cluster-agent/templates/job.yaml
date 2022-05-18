@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "chkk-cluster-agent.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "chkk-cluster-agent.labels" . | indent 4 }}
+  annotations:
+{{ include "chkk-cluster-agent.annotations" . | indent 4 }}
+spec:
+  ttlSecondsAfterFinished: 10
+  template:
+    metadata:
+      labels:
+{{ include "chkk-cluster-agent.labels" . | indent 8 }}
+      annotations:
+{{ include "chkk-cluster-agent.annotations" . | indent 8 }}
+    spec:
+      securityContext:
+        runAsUser: 12000
+        runAsNonRoot: true
+      restartPolicy: Never
+      serviceAccountName: {{ template "chkk-cluster-agent.serviceAccountName" . }}
+      automountServiceAccountToken: true
+      containers:
+        - name: chkk-firstscan
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: CHKK_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "chkk-cluster-agent.secretName" . }}
+                  key: CHKK_ACCESS_TOKEN
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: {{ include "chkk-cluster-agent.fullname" . }}
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: {{ include "chkk-cluster-agent.fullname" . }}
+          configMap:
+            name: {{ include "chkk-cluster-agent.fullname" . }}
