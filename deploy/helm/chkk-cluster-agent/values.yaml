@@ -4,13 +4,13 @@
 
 image:
   repository: public.ecr.aws/j8z4q9j4/chkk-kontext
-  tag: v1.0.23
+  tag: v1.0.25
   pullPolicy: IfNotPresent
 
 manager:
   image:
     repository: public.ecr.aws/j8z4q9j4/chkk-cluster-agent-manager
-    tag: v1.0.23
+    tag: v1.0.25
     pullPolicy: IfNotPresent
   resources:
     limits:
@@ -29,20 +29,18 @@ cronjob:
 config:
   enabled: true
   fileContents:
-    DaemonSet: true
-    Deployment: true
-    Pod: true
-    PodTemplate: true
-    ReplicationController: true
-    StatefulSet: true
-    NetworkPolicy: true
-    CronJob: true
-    Namespace: true
-    Service: true
-    Job: true
-    Ingress: true
-    ConfigMap: true
-
+    rules:
+      - include:
+        - path: $.kind
+          match: ^DaemonSet|Deployment|Pod|PodTemplate|ReplicationController|StatefulSet$
+      - include:
+        - path: $.kind
+          match: ^NetworkPolicy|CronJob|Namespace|Service|Job|Ingress$
+      - include:
+        - path: $.kind
+          match: ^ConfigMap$
+        - path: $.metadata.name
+          match: ^*dns*$
 resources:
   limits:
     cpu: 500m
