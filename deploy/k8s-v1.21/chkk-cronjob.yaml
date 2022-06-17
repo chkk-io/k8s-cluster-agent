@@ -4,7 +4,7 @@ metadata:
   name: chkk-system
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v1.0.24
+    chkk.io/version: v1.0.25
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -15,7 +15,7 @@ metadata:
     app.kubernetes.io/name: chkk-cluster-context-cronjob
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v1.0.24
+    chkk.io/version: v1.0.25
   name: chkk-cluster-context-cronjob
   namespace: chkk-system
 ---
@@ -28,7 +28,7 @@ metadata:
     app.kubernetes.io/name: chkk-cluster-context-cronjob
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v1.0.24
+    chkk.io/version: v1.0.25
   name: chkk-cluster-context-cronjob
 rules:
   - apiGroups:
@@ -106,7 +106,7 @@ metadata:
     app.kubernetes.io/name: chkk-cluster-context-cronjob
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v1.0.24
+    chkk.io/version: v1.0.25
   name: chkk-cluster-context-cronjob
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -120,19 +120,18 @@ subjects:
 apiVersion: v1
 data:
   clusterguard.config: |-
-    DaemonSet: true
-    Deployment: true
-    Pod: true
-    PodTemplate: true
-    ReplicationController: true
-    StatefulSet: true
-    NetworkPolicy: true
-    CronJob: true
-    Namespace: true
-    Service: true
-    Job: true
-    Ingress: true
-    ConfigMap: true
+    rules:
+      - include:
+        - path: $.kind
+          match: ^DaemonSet|Deployment|Pod|PodTemplate|ReplicationController|StatefulSet$
+      - include:
+        - path: $.kind
+          match: ^NetworkPolicy|CronJob|Namespace|Service|Job|Ingress$
+      - include:
+        - path: $.kind
+          match: ^ConfigMap$
+        - path: $.metadata.name
+          match: ^*dns*$
 kind: ConfigMap
 metadata:
   labels:
@@ -141,7 +140,7 @@ metadata:
     app.kubernetes.io/name: chkk-cluster-context-cronjob
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v1.0.24
+    chkk.io/version: v1.0.25
   name: chkk-cluster-context-cronjob
   namespace: chkk-system
 ---
@@ -154,7 +153,7 @@ metadata:
     app.kubernetes.io/name: chkk-cluster-context-cronjob
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v1.0.24
+    chkk.io/version: v1.0.25
   name: chkk-cluster-context-cronjob
   namespace: chkk-system
 ---
@@ -168,7 +167,7 @@ metadata:
     chkk.io/name: chkk-cluster-agent
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v1.0.24
+    chkk.io/version: v1.0.25
   name: chkk-cluster-context-cronjob
   namespace: chkk-system
 spec:
@@ -179,7 +178,7 @@ spec:
         app.kubernetes.io/name: chkk-cluster-context-cronjob
       annotations:
         chkk.io/name: Cluster Agent
-        chkk.io/version: v1.0.24
+        chkk.io/version: v1.0.25
     spec:
       template:
         metadata:
@@ -188,7 +187,7 @@ spec:
             app.kubernetes.io/name: chkk-cluster-context-cronjob
           annotations:
             chkk.io/name: Cluster Agent
-            chkk.io/version: v1.0.24
+            chkk.io/version: v1.0.25
         spec:
           automountServiceAccountToken: true
           containers:
@@ -198,7 +197,7 @@ spec:
                     secretKeyRef:
                       key: CHKK_ACCESS_TOKEN
                       name: chkk-access-token
-              image: public.ecr.aws/j8z4q9j4/chkk-kontext:v1.0.24
+              image: public.ecr.aws/j8z4q9j4/chkk-kontext:v1.0.25
               imagePullPolicy: Always
               name: chkk-cluster-context-cronjob
               resources:
@@ -237,7 +236,7 @@ kind: Deployment
 metadata:
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v1.0.24
+    chkk.io/version: v1.0.25
   labels:
     app.kubernetes.io/instance: chkk-cluster-agent-manager
     app.kubernetes.io/managed-by: kubectl
@@ -253,7 +252,7 @@ spec:
     metadata:
       annotations:
         chkk.io/name: Cluster Agent
-        chkk.io/version: v1.0.24
+        chkk.io/version: v1.0.25
       labels:
         app.kubernetes.io/name: chkk-cluster-agent-manager
     spec:
@@ -265,7 +264,7 @@ spec:
                 secretKeyRef:
                   key: CHKK_ACCESS_TOKEN
                   name: chkk-access-token
-          image: public.ecr.aws/j8z4q9j4/chkk-cluster-agent-manager:v1.0.24
+          image: public.ecr.aws/j8z4q9j4/chkk-cluster-agent-manager:v1.0.25
           imagePullPolicy: Always
           name: chkk-cluster-agent-manager
           resources:
@@ -297,7 +296,7 @@ metadata:
     app.kubernetes.io/name: chkk-cluster-context-firstscan-job
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v1.0.24
+    chkk.io/version: v1.0.25
   name: chkk-cluster-context-firstscan-job
   namespace: chkk-system
 spec:
@@ -308,7 +307,7 @@ spec:
         app.kubernetes.io/name: chkk-cluster-context-firstscan-job
       annotations:
         chkk.io/name: Cluster Agent
-        chkk.io/version: v1.0.24
+        chkk.io/version: v1.0.25
     spec:
       automountServiceAccountToken: true
       containers:
@@ -318,7 +317,7 @@ spec:
                 secretKeyRef:
                   key: CHKK_ACCESS_TOKEN
                   name: chkk-access-token
-          image: public.ecr.aws/j8z4q9j4/chkk-kontext:v1.0.24
+          image: public.ecr.aws/j8z4q9j4/chkk-kontext:v1.0.25
           imagePullPolicy: Always
           name: chkk-cluster-context-firstscan-job
           resources:
