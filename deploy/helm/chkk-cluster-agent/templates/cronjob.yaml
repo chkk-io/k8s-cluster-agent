@@ -41,6 +41,10 @@ spec:
                     secretKeyRef:
                       name: {{ include "chkk-cluster-agent.secretName" . }}
                       key: CHKK_ACCESS_TOKEN
+                - name: NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
               resources:
 {{ toYaml .Values.resources | indent 16 }}
               securityContext:
@@ -52,7 +56,16 @@ spec:
                 - name: {{ include "chkk-cluster-agent.fullname" . }}
                   mountPath: /config
                   readOnly: true
+                - name: {{ include "chkk-cluster-agent.fullname" . }}-labels
+                  mountPath: /etc/downward
+                  readOnly: true
           volumes:
             - name: {{ include "chkk-cluster-agent.fullname" . }}
               configMap:
                 name: {{ include "chkk-cluster-agent.fullname" . }}
+            - downwardAPI:
+                items:
+                  - fieldRef:
+                      fieldPath: metadata.labels
+                    path: "labels"
+              name: {{ include "chkk-cluster-agent.fullname" . }}-labels

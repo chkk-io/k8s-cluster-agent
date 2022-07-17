@@ -50,12 +50,12 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "chkk-cluster-agent.labels" -}}
-helm.sh/chart: {{ include "chkk-cluster-agent.chart" . }}
+chkk-io.helm.sh/chart: {{ include "chkk-cluster-agent.chart" . }}
 {{ include "chkk-cluster-agent.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+chkk-io.app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+chkk-io.app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
