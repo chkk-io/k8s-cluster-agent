@@ -1,5 +1,5 @@
 apiVersion: v2
 name: chkk-cluster-agent
 description: Chkk cluster agent Helm chart
-version: v1.0.28
-appVersion: v1.0.28
+version: v1.0.29
+appVersion: v1.0.29
