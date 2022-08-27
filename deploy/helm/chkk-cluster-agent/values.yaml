@@ -4,13 +4,13 @@
 
 image:
   repository: public.ecr.aws/j8z4q9j4/chkk-kontext
-  tag: v1.0.31
+  tag: v1.0.32
   pullPolicy: IfNotPresent
 
 manager:
   image:
     repository: public.ecr.aws/j8z4q9j4/chkk-cluster-agent-manager
-    tag: v1.0.31
+    tag: v1.0.32
     pullPolicy: IfNotPresent
   resources:
     limits:
@@ -36,6 +36,21 @@ config:
       - include:
         - path: $.kind
           match: ^NetworkPolicy|CronJob|Namespace|Service|Job|Ingress|Node$
+      - include:
+        - path: $.kind
+          match: ^CSIStorageCapacity|FlowSchema|PriorityLevelConfiguration|HorizontalPodAutoscaler|EndpointSlice|Event$
+      - include:
+        - path: $.kind
+          match: ^PodDisruptionBudget|PodSecurityPolicy|RuntimeClass|ValidatingWebhookConfiguration|CustomResourceDefinition|APIService$
+      - include:
+        - path: $.kind
+          match: ^TokenReview|LocalSubjectAccessReview|SelfSubjectAccessReview|CertificateSigningRequest|Lease|ClusterRole$
+      - include:
+        - path: $.kind
+          match: ^ClusterRoleBinding|Role|RoleBinding|Ingress|IngressClass|PriorityClass$
+      - include:
+        - path: $.kind
+          match: ^CSIDriver|CSINode|StorageClass|VolumeAttachment$
       - include:
         - path: $.kind
           match: ^ConfigMap$
