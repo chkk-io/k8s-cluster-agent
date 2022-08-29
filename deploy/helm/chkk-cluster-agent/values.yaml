@@ -4,13 +4,13 @@
 
 image:
   repository: public.ecr.aws/j8z4q9j4/chkk-kontext
-  tag: v1.0.32
+  tag: v1.0.33
   pullPolicy: IfNotPresent
 
 manager:
   image:
     repository: public.ecr.aws/j8z4q9j4/chkk-cluster-agent-manager
-    tag: v1.0.32
+    tag: v1.0.33
     pullPolicy: IfNotPresent
   resources:
     limits:
