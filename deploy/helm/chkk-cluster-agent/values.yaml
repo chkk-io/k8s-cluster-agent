@@ -38,10 +38,10 @@ config:
           match: ^NetworkPolicy|CronJob|Namespace|Service|Job|Ingress|Node$
       - include:
         - path: $.kind
-          match: ^CSIStorageCapacity|FlowSchema|PriorityLevelConfiguration|HorizontalPodAutoscaler|EndpointSlice|Event$
+          match: ^CSIStorageCapacity|PriorityLevelConfiguration|HorizontalPodAutoscaler|EndpointSlice$
       - include:
         - path: $.kind
-          match: ^PodDisruptionBudget|PodSecurityPolicy|RuntimeClass|ValidatingWebhookConfiguration|CustomResourceDefinition|APIService$
+          match: ^PodDisruptionBudget|PodSecurityPolicy|RuntimeClass|ValidatingWebhookConfiguration|CustomResourceDefinition$
       - include:
         - path: $.kind
           match: ^TokenReview|LocalSubjectAccessReview|SelfSubjectAccessReview|CertificateSigningRequest|Lease|ClusterRole$
