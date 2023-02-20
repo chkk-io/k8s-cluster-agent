@@ -25,6 +25,25 @@ spec:
           annotations:
 {{ include "chkk-cluster-agent.annotations" . | indent 12 }}
         spec:
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                    - key: kubernetes.io/arch
+                      operator: In
+                      values:
+                        - arm64
+                        - amd64
+          tolerations:
+            - key: kubernetes.io/arch
+              operator: Equal
+              value: amd64
+              effect: NoSchedule
+            - key: kubernetes.io/arch
+              operator: Equal
+              value: arm64
+              effect: NoSchedule
           securityContext:
             runAsUser: 12000
             runAsNonRoot: true
