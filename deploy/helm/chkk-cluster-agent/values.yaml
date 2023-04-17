@@ -4,13 +4,13 @@
 
 image:
   repository: public.ecr.aws/chkk/cluster-agent
-  tag: v0.1.3
+  tag: v0.1.5
   pullPolicy: IfNotPresent
 
 manager:
   image:
     repository: public.ecr.aws/chkk/cluster-agent-manager
-    tag: v0.1.3
+    tag: v0.1.5
     pullPolicy: IfNotPresent
   resources:
     limits:
@@ -30,6 +30,9 @@ config:
   enabled: true
   fileContents:
     rules:
+      - exclude:
+        - path: $.metadata.name
+          match: ^chkk
       - include:
         - path: $.kind
           match: ^DaemonSet|Deployment|Pod|PodTemplate|ReplicationController|StatefulSet$

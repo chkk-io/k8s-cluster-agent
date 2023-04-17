@@ -30,12 +30,10 @@ If release name contains chart name it will be used as a full name.
 
 {{/* Get CronJob API Version */}}
 {{- define "chkk-cluster-agent.cronjob.apiVersion" -}}
-  {{- if .Capabilities.APIVersions.Has "batch/v1beta1" -}}
-      {{- print "batch/v1beta1" -}}
-  {{- else if .Capabilities.APIVersions.Has "batch/v1" -}}
-    {{- print "batch/v1" -}}
+  {{- if semverCompare ">=1.21-0" .Capabilities.KubeVersion.GitVersion -}}
+      {{- print "batch/v1" -}}
   {{- else -}}
-    {{- print "batch/v1" -}}
+    {{- print "batch/v1beta1" -}}
   {{- end -}}
 {{- end -}}
 
