@@ -6,6 +6,8 @@ metadata:
   labels:
 {{ include "chkk-cluster-agent.labels" . | indent 4 }}
 {{ include "chkk-cluster-agent.cronjobLabels" . | indent 4 }}
+  annotations:
+{{ include "chkk-cluster-agent.annotations" . | indent 4 }}
 spec:
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1

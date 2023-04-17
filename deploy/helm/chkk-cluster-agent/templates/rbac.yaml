@@ -4,6 +4,8 @@ metadata:
   name: {{ template "chkk-cluster-agent.fullname" . }}-role
   labels:
 {{ include "chkk-cluster-agent.labels" . | indent 4 }}
+  annotations:
+{{ include "chkk-cluster-agent.annotations" . | indent 4 }}
 rules:
   - apiGroups: [""]
     resources: [namespaces]
@@ -72,6 +74,8 @@ metadata:
   name: {{ template "chkk-cluster-agent.fullname" . }}-rolebinding
   labels:
 {{ include "chkk-cluster-agent.labels" . | indent 4 }}
+  annotations:
+{{ include "chkk-cluster-agent.annotations" . | indent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
