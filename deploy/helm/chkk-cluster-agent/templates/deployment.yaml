@@ -39,6 +39,7 @@ spec:
           value: arm64
           effect: NoSchedule
       securityContext:
+        fsGroup: 65534
         runAsUser: 12000
         runAsNonRoot: true
       restartPolicy: Always
