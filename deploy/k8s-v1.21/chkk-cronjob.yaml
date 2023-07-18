@@ -4,7 +4,7 @@ metadata:
   name: chkk-system
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v0.1.6
+    chkk.io/version: v0.1.7
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -15,7 +15,7 @@ metadata:
     app.kubernetes.io/name: chkk-cluster-context-cronjob
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v0.1.6
+    chkk.io/version: v0.1.7
   name: chkk-cluster-context-cronjob
   namespace: chkk-system
 ---
@@ -28,13 +28,16 @@ metadata:
     app.kubernetes.io/name: chkk-cluster-context-cronjob
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v0.1.6
+    chkk.io/version: v0.1.7
   name: chkk-cluster-context-cronjob
 rules:
   - apiGroups:
       - ""
     resources:
       - namespaces
+      - limitranges
+      - resourcequotas
+      - componentstatuses
     verbs:
       - get
       - list
@@ -54,6 +57,8 @@ rules:
       - ""
     resources:
       - nodes
+      - persistentvolumeclaims
+      - persistentvolumes
     verbs:
       - get
       - list
@@ -73,6 +78,7 @@ rules:
       - statefulsets
       - daemonsets
       - deployments
+      - controllerrevisions
     verbs:
       - get
       - list
@@ -93,6 +99,8 @@ rules:
       - networkpolicies
       - ingresses
       - ingressclasses
+      - ipaddresses
+      - clustercidrs
     verbs:
       - get
       - list
@@ -177,6 +185,9 @@ rules:
       - admissionregistration.k8s.io
     resources:
       - validatingwebhookconfigurations
+      - validatingadmissionpolicies
+      - mutatingwebhookconfigurations
+      - validatingadmissionpolicybindings
     verbs:
       - get
       - list
@@ -185,6 +196,7 @@ rules:
       - certificates.k8s.io
     resources:
       - certificatesigningrequests
+      - clustertrustbundles
     verbs:
       - get
       - list
@@ -216,6 +228,25 @@ rules:
       - get
       - list
       - watch
+  - apiGroups:
+      - resource.k8s.io
+    resources:
+      - podschedulingcontexts
+      - resourceclaims
+      - resourceclaimtemplates
+      - resourceclasses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - scheduling.k8s.io
+    resources:
+      - priorityclasses
+    verbs:
+      - get
+      - list
+      - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -226,7 +257,7 @@ metadata:
     app.kubernetes.io/name: chkk-cluster-context-cronjob
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v0.1.6
+    chkk.io/version: v0.1.7
   name: chkk-cluster-context-cronjob
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -267,6 +298,18 @@ data:
           match: ^CSIDriver|CSINode|StorageClass|VolumeAttachment$
       - include:
         - path: $.kind
+          match: ^ValidatingAdmissionPolicy|MutatingWebhookConfiguration|ControllerRevision$
+      - include:
+        - path: $.kind
+          match: ^PodSchedulingContext|ResourceClaim|ResourceClaimTemplate|ResourceClass$
+      - include:
+        - path: $.kind
+          match: ^PersistentVolumeClaim|PersistentVolume|ClusterTrustBundle|LimitRange$
+      - include:
+        - path: $.kind
+          match: ^ResourceQuota|IPAddress|ComponentStatus|ClusterCIDR|ValidatingAdmissionPolicyBindingList$
+      - include:
+        - path: $.kind
           match: ^ConfigMap$
         - path: $.metadata.name
           match: ^*dns*$
@@ -278,7 +321,7 @@ metadata:
     app.kubernetes.io/name: chkk-cluster-context-cronjob
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v0.1.6
+    chkk.io/version: v0.1.7
   name: chkk-cluster-context-cronjob
   namespace: chkk-system
 ---
@@ -291,7 +334,7 @@ metadata:
     app.kubernetes.io/name: chkk-cluster-context-cronjob
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v0.1.6
+    chkk.io/version: v0.1.7
   name: chkk-cluster-context-cronjob
   namespace: chkk-system
 ---
@@ -305,7 +348,7 @@ metadata:
     chkk.io/name: chkk-cluster-agent
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v0.1.6
+    chkk.io/version: v0.1.7
   name: chkk-cluster-context-cronjob
   namespace: chkk-system
 spec:
@@ -316,7 +359,7 @@ spec:
         app.kubernetes.io/name: chkk-cronjob
       annotations:
         chkk.io/name: Cluster Agent
-        chkk.io/version: v0.1.6
+        chkk.io/version: v0.1.7
     spec:
       template:
         metadata:
@@ -325,7 +368,7 @@ spec:
             app.kubernetes.io/name: chkk-cronjob
           annotations:
             chkk.io/name: Cluster Agent
-            chkk.io/version: v0.1.6
+            chkk.io/version: v0.1.7
         spec:
           affinity:
             nodeAffinity:
@@ -358,7 +401,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
-              image: public.ecr.aws/chkk/cluster-agent:v0.1.6
+              image: public.ecr.aws/chkk/cluster-agent:v0.1.7
               imagePullPolicy: Always
               name: chkk-cluster-context-cronjob
               resources:
@@ -407,7 +450,7 @@ kind: Deployment
 metadata:
   annotations:
     chkk.io/name: Cluster Agent
-    chkk.io/version: v0.1.6
+    chkk.io/version: v0.1.7
   labels:
     app.kubernetes.io/instance: chkk-cluster-agent-manager
     app.kubernetes.io/managed-by: kubectl
@@ -423,7 +466,7 @@ spec:
     metadata:
       annotations:
         chkk.io/name: Cluster Agent
-        chkk.io/version: v0.1.6
+        chkk.io/version: v0.1.7
       labels:
         app.kubernetes.io/name: chkk-cluster-agent-manager
     spec:
@@ -454,7 +497,7 @@ spec:
                 secretKeyRef:
                   key: CHKK_ACCESS_TOKEN
                   name: chkk-access-token
-          image: public.ecr.aws/chkk/cluster-agent-manager:v0.1.6
+          image: public.ecr.aws/chkk/cluster-agent-manager:v0.1.7
           imagePullPolicy: Always
           name: chkk-cluster-agent-manager
           resources:
