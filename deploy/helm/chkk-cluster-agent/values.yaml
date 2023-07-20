@@ -4,13 +4,13 @@
 
 image:
   repository: public.ecr.aws/chkk/cluster-agent
-  tag: v0.1.7
+  tag: v0.1.8
   pullPolicy: IfNotPresent
 
 manager:
   image:
     repository: public.ecr.aws/chkk/cluster-agent-manager
-    tag: v0.1.7
+    tag: v0.1.8
     pullPolicy: IfNotPresent
   resources:
     limits:
@@ -38,7 +38,7 @@ config:
           match: ^DaemonSet|Deployment|Pod|PodTemplate|ReplicationController|StatefulSet$
       - include:
         - path: $.kind
-          match: ^NetworkPolicy|CronJob|Namespace|Service|Job|Ingress|Node$
+          match: ^NetworkPolicy|CronJob|Namespace|Service|Job|Ingress|Node|ConfigMap$
       - include:
         - path: $.kind
           match: ^CSIStorageCapacity|PriorityLevelConfiguration|HorizontalPodAutoscaler|EndpointSlice$
@@ -66,11 +66,6 @@ config:
       - include:
         - path: $.kind
           match: ^ResourceQuota|IPAddress|ComponentStatus|ClusterCIDR|ValidatingAdmissionPolicyBindingList$
-      - include:
-        - path: $.kind
-          match: ^ConfigMap$
-        - path: $.metadata.name
-          match: ^*dns*$
 resources:
   limits:
     cpu: 500m
